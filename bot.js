@@ -1,9 +1,11 @@
 const { Client, GatewayIntentBits, SlashCommandBuilder, EmbedBuilder, REST, Routes } = require('discord.js');
+const express = require('express');
 
 // Configuration depuis les variables d'environnement
 const TOKEN = process.env.DISCORD_TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
 const GUILD_ID = process.env.GUILD_ID;
+const PORT = process.env.PORT || 3000;
 
 // Vérification des variables d'environnement
 if (!TOKEN || !CLIENT_ID || !GUILD_ID) {
@@ -11,6 +13,24 @@ if (!TOKEN || !CLIENT_ID || !GUILD_ID) {
   console.error('Assurez-vous que DISCORD_TOKEN, CLIENT_ID et GUILD_ID sont définis.');
   process.exit(1);
 }
+
+// Création du serveur HTTP pour Render.com
+const app = express();
+app.get('/', (req, res) => {
+  res.send('✅ Bot Discord en ligne !');
+});
+
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'online', 
+    bot: client.user ? client.user.tag : 'connecting...',
+    uptime: process.uptime()
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`🌐 Serveur HTTP démarré sur le port ${PORT}`);
+});
 
 // Création du client Discord
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
